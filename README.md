@@ -8,12 +8,27 @@ https://github.com/ConsenSys/truffle-webpack-demo
 
 Note: Make sure you are running at least `geth 1.4.17-stable-3885907c`, or in some way be running at least `solc ^0.4.0 `
 
+### Prerequisites
+ - Node.js
+ - Geth
+ - Truffle: `npm install -g truffle`
+ - Testrpc: `npm install -g ethereumjs-testrpc`
+
 ### Running
 
 The Web3 RPC location will be picked up from the `truffle.js` file.
 
-0. Clone this repo
-0. `npm install`
-0. Make sure `testrpc` is running on its default port. Then:
+- Clone this repo
+- `npm install` in the root directory
+- Make sure `testrpc` is running on its default port. Then:
   - `npm run start` - Starts the development server
   - Load up http://localhost:3000
+
+### How to use
+- Use the form in the center of the page to add steps to the workflow
+- Click the '+ Stakeholder' button to add the account as a stakeholder for this step in the workflow
+- Click approve to approve the current workflow step
+- Once enough approvals have been made for the current workflow step, the contract will move to it's next state
+- To reset the contract, restart testrpc
+
+### Screenshot
