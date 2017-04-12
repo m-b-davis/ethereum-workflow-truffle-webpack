@@ -32,3 +32,5 @@ The Web3 RPC location will be picked up from the `truffle.js` file.
 - To reset the contract, restart testrpc
 
 ### Screenshot
+
+![Screenshot](https://github.com/m-b-davis/ethereum-workflow-truffle-webpack/blob/master/workflow-screenshot.png?raw=true)
