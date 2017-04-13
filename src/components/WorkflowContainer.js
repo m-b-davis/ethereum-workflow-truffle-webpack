@@ -20,7 +20,6 @@ class WorkflowContainer extends Component {
     };
 
     this.handleReloadCurrentState = this.handleReloadCurrentState.bind(this);
-    this.addTestWorkflowStep = this.addTestWorkflowStep.bind(this);
     this.renderWorkflowStep = this.renderWorkflowStep.bind(this);
     this.loadWorkflow = this.loadWorkflow.bind(this);
     this.loadMaxStepIndex = this.loadMaxStepIndex.bind(this);
@@ -39,12 +38,12 @@ class WorkflowContainer extends Component {
     }).then(() => {
         this.loadWorkflow();
         this.handleReloadCurrentState();
+    }).catch((err) => {
+      console.error(err);
     });
   }
 
   getCurrentWorkflowStep() {
-    console.log("getCurrentWorkflowStep");
-    console.log(this.state.currentIndex);
     if(this.state.currentIndex > -1){
       return this.state.workflowSteps[this.state.currentIndex];
     }
@@ -83,6 +82,8 @@ class WorkflowContainer extends Component {
       for (var index = 0; index < maxStepIndex; index += 1) {
         this.loadWorkflowStepAtIndex(index); // load workflow steps from index 0 -> max index
       }
+    }).catch((err) => {
+      console.error(err);
     });
   }
 
@@ -104,7 +105,6 @@ class WorkflowContainer extends Component {
     var workflow = Workflow.deployed();
     return new Promise((resolve, reject) => {
       workflow.stepIndex.call().then((value) => {
-        console.log("Got index: " + value.toNumber());
         this.setState({currentIndex: value.toNumber()}, () => {
           resolve();
         });
@@ -143,28 +143,6 @@ class WorkflowContainer extends Component {
     }, 5000)
   }
 
-  addTestWorkflowStep() {
-    if (this.state.accounts.length === 0) {
-      console.log("No account to add a workflow step from, returning");
-      return;
-    }
-
-    console.log("add test workflow step");
-    var workflowSteps = [
-      {name: "Bid ready", approvalsRequired: 3},
-      {name: "Project phase 1 complete", approvalsRequired: 2},
-      {name: "Project complete", approvalsRequired: 3}
-    ];
-
-    var firstState = workflowSteps[0];
-    var workflow = Workflow.deployed();
-
-    workflow.addWorkflowStep(firstState.name, firstState.approvalsRequired, {from: this.state.accounts[0], gas: 200000}).then((result) => {
-      console.log("Workflow state added:");
-      console.log(result);
-    });
-  }
-
   addWorkflowStep(name, approvalsRequired) {
     if (this.state.accounts.length === 0) {
       console.log("No account to add a workflow step from, returning");
@@ -176,13 +154,17 @@ class WorkflowContainer extends Component {
     workflow.addWorkflowStep(name, approvalsRequired, {from: this.state.accounts[0], gas: 200000}).then((result) => {
       console.log("Workflow state added:");
       console.log(result);
+    }).catch((err) => {
+      console.error(err);
     });
   }
 
   handleReloadCurrentState() {
-    console.log("Refreshing...");
+
     this.loadCurrentStepIndex().then(() => {
       this.loadWorkflow();
+    }).catch((err) => {
+      console.error(err);
     });
   }
 
@@ -275,7 +257,6 @@ class WorkflowContainer extends Component {
   }
 
   renderAddStepContainer() {
-    console.log(this.state.newStep)
     return (
       <div className="root-container yellow-background">
         <div className="add-workflow-step-container content-container">

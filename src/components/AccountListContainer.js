@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 
 import Workflow from 'contracts/Workflow.sol';
 import Web3 from 'web3';
+import InputModal from 'components/InputModal'
 
 class AccountListContainer extends Component {
   constructor(props) {
@@ -9,10 +10,15 @@ class AccountListContainer extends Component {
     this.state = {
       currentIndex: -1,
       stakeholders: [],
-      nonStakeholders: []
+      nonStakeholders: [],
+      nicknames: {},
+      nicknameModal: {
+        isHidden: true,
+        account: null,
+        onConfirm: null,
+        onCancel: null
+      }
     }
-
-
 
     this.render = this.render.bind(this);
     this.renderStakeholder = this.renderStakeholder.bind(this);
@@ -20,15 +26,17 @@ class AccountListContainer extends Component {
     this.handleAddStakeholder = this.handleAddStakeholder.bind(this);
     this.approveStep = this.approveStep.bind(this);
     this.reloadAccounts = this.reloadAccounts.bind(this);
+    this.setNickname = this.setNickname.bind(this);
+    this.showNicknameModal = this.showNicknameModal.bind(this);
+    this.hideModal = this.hideModal.bind(this);
+
+    this.reloadNicknames = this.reloadNicknames.bind(this);
+    this.reloadNickname = this.reloadNickname.bind(this);
 
     this.reloadAccounts();
   }
 
   componentWillReceiveProps(nextProps){
-    console.log("PROPS")
-    console.log(this.props);
-    console.log("NEXTPROPS")
-    console.log(nextProps);
 
     if (typeof(this.props.currentWorkflowStep) === 'undefined' ||
         typeof(nextProps.currentWorkflowStep) === 'undefined') {
@@ -42,6 +50,10 @@ class AccountListContainer extends Component {
 
   componentWillMount(){
     Workflow.setProvider(this.props.web3.currentProvider);
+
+    setInterval(() => {
+      this.reloadNicknames();
+    }, 5000)
   }
 
   reloadAccounts() {
@@ -61,6 +73,25 @@ class AccountListContainer extends Component {
         nonStakeholders: accounts,
         stakeholders: []
       });
+    });
+  }
+
+  reloadNicknames() {
+    this.state.nonStakeholders.map(this.reloadNickname);
+    this.state.stakeholders.map(this.reloadNickname);
+  }
+
+  reloadNickname(account) {
+    var workflow = Workflow.deployed();
+
+    var nicknames = this.state.nicknames;
+
+    workflow.getNickname.call(account).then((value) => {
+      console.log(value);
+      nicknames[account] = value;
+      this.setState({ nicknames: nicknames });
+    }).catch((err) => {
+      console.error(err);
     });
   }
 
@@ -131,7 +162,41 @@ class AccountListContainer extends Component {
     workflow.approve({ from: account }).then(function(result){
       console.log("approve result:")
       console.log(result);
-    })
+    }).catch((err) => {
+      console.error(err);
+    });
+  }
+
+  hideModal() {
+    var defaultModalState = {
+      isHidden: true,
+      account: null,
+      onCancel: null,
+      onConfirm: null
+    }
+
+    this.setState({nicknameModal: defaultModalState});
+  }
+
+
+  showNicknameModal(account){
+
+    var nicknameModalState = {
+      isHidden: false,
+      account: account,
+      onCancel: this.hideModal,
+      onConfirm: ((nickname) => {
+        this.hideModal();
+        this.setNickname(account, nickname);
+      }).bind(this)
+    }
+
+    this.setState({nicknameModal: nicknameModalState});
+  }
+
+  setNickname(account, nickname) {
+    var workflow = Workflow.deployed();
+    workflow.setNickname(nickname, {from: account});
   }
 
   render() {
@@ -140,10 +205,11 @@ class AccountListContainer extends Component {
 
     return (
       <div className="root-container yellow-background">
+      <InputModal isHidden={this.state.nicknameModal.isHidden} message="Enter a nickname" onConfirm={this.state.nicknameModal.onConfirm} onCancel={this.state.nicknameModal.onCancel}></InputModal>
         <div className="accounts-container content-container">
 
             {stakeholders.length > 0 &&
-              <div className="accounts-container-stakeholders">
+              <div className="accounts-container-inner">
                 <div className="title">
                   <h1>Stakeholders</h1>
                 </div>
@@ -151,7 +217,7 @@ class AccountListContainer extends Component {
               </div>
             }
 
-          <div className="accounts-container-nonstakeholders">
+          <div className="accounts-container-inner">
             <div className="title"><h1>Accounts</h1></div>
             {accounts.map(this.renderNonStakeholder)}
           </div>
@@ -160,25 +226,47 @@ class AccountListContainer extends Component {
     )
   }
 
-  renderAccount(account, buttonText, callback) {
+
+  renderStakeholder(account) {
+    var approveButton = {
+      text: "Approve",
+      onClick: (e) => { this.approveStep(account) }
+    };
+
+    var buttons = [approveButton];
+    return this.renderAccount(account, buttons);
+  }
+
+  renderNonStakeholder(account) {
+    var addNicknameButton = {
+      text: "Set Nickname",
+      onClick: (e) => { this.showNicknameModal(account) }
+    };
+
+    var stakeholderButton = {
+      text: "+ Stakeholder",
+      onClick: (e) => { this.handleAddStakeholder(account) }
+    };
+
+    var buttons = [stakeholderButton, addNicknameButton];
+    return this.renderAccount(account, buttons);
+  }
+
+  renderAccount(account, buttons) {
+    let nicknames = this.state.nicknames;
+    let nickname = account in nicknames ? nicknames[account] : "Anonymous";
+
     return(
       <div className="address-line" key={ account }>
-        <p> Address: {account} </p>
-        <button onClick={callback}> {buttonText} </button>
+        <h2>{ nickname }</h2>
+        <p>{ account } </p>
+        { buttons.map(this.renderButton) }
       </div>
     );
   }
 
-  renderStakeholder(account) {
-    return this.renderAccount(account, "Approve", (e) => {
-      this.approveStep(account)
-    });
-  }
-
-  renderNonStakeholder(account) {
-    return this.renderAccount(account, "+ Stakeholder", (e) => {
-      this.handleAddStakeholder(account)
-    });
+  renderButton(button) {
+    return (<button onClick={button.onClick}> {button.text} </button>);
   }
 }
 

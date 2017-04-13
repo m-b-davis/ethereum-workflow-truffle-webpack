@@ -112,6 +112,10 @@ thead {
     }
 }
 
+.accounts-container-inner {
+  margin-top: 50px;
+}
+
 .title {
 
   h1 {
@@ -151,9 +155,10 @@ input {
 .address-line {
 
   border: #f8f8f8 0px solid;
-  padding: 20px 0px;
+  padding: 10px 0px;
 
   margin-top:10px;
+  margin-left: 15px;
 
 
   button {
@@ -169,12 +174,23 @@ input {
   p {
     width:500px;
     display: inline-block;
-    margin-left: 20px;
+    margin-top:5px;
     margin-right: 20px;
   }
 
 }
 
+input {
+    border: #111 3px solid;
+}
+
 button {
+  background: rgba(0,0,0,0);
+  color: #111;
+  font-weight:bold;
+  font-size: 14px;
+  padding:5px 10px;
+  border: #111 3px solid;
+  margin-left: 15px;
   width:130px;
 }

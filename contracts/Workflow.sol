@@ -100,7 +100,7 @@ contract Workflow {
         }
     }
 
-    function getNickname(address senderAddress) private returns (string name) {
+    function getNickname(address senderAddress) constant returns (string name) {
       var nickname = nicknames[senderAddress];
       if(nickname.exists) {
         return nickname.name;
