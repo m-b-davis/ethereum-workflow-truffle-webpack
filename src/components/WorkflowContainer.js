@@ -14,7 +14,7 @@ class WorkflowContainer extends Component {
       maxStepIndex: -1,
       currentIndex: -1,
       newStep: {
-        stepName: "Enter a name",
+        stepName: "",
         approvalsRequired: 3
       }
     };
@@ -263,8 +263,8 @@ class WorkflowContainer extends Component {
         <div className="title"> <h2> Add new workflow step: </h2> </div>
           <form className="add-workflow-step" onSubmit={this.handleSubmitAddStep}>
             <label> Name: </label>
-            <input type="text" name="stepName" value={this.state.newStep.stepName} onChange={this.handleFormChange}/>
-            <label> Approvals: </label>
+            <input type="text" name="stepName" placeholder="(e.g Build Phase II)" value={this.state.newStep.stepName} onChange={this.handleFormChange}/>
+            <label> Approvals Required: </label>
             <input type="number" name="approvalsRequired" value={this.state.newStep.approvalsRequired} onChange={this.handleFormChange}/>
             <input type="submit" value="Add Step" />
           </form>
