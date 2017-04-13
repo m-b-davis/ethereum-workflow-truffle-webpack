@@ -18,7 +18,7 @@ body {
   width: 100%;
   justify-content: center;
   align-items: center;
-  background: #111;
+  background: #FFF;
 }
 
 
@@ -37,11 +37,10 @@ thead {
 }
 
 .blue-background {
-  background: #4bb5ff;
+  background: linear-gradient(140deg, #40d0e3 0%, #26d0e3 51%, #37bced 95%);
 }
 
 .yellow-background {
-  background: #ffd84b;
 }
 
 .dark-background {
@@ -72,6 +71,10 @@ thead {
 .add-workflow-step > * {
   display: inline-block;
   margin: 10px 20px;
+}
+
+.workflow-step-container {
+  padding: 10px 0;
 }
 
 .workflow-step {
